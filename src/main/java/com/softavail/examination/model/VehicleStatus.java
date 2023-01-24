@@ -1,6 +1,5 @@
 package com.softavail.examination.model;
 
-import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -21,16 +20,17 @@ public class VehicleStatus {
 
     private final UUID id;
     private final String vin;
-    private final Boolean accidentFree;
-    private final Set<MaintenanceScore> maintenanceScores;
+    private final Boolean isAccidentFree;
+    private final MaintenanceScore maintenanceScores;
 
     @JsonCreator
     public VehicleStatus(@JsonProperty("vin") String vin,
-            @JsonProperty("maintenanceScore") Set<MaintenanceScore> maintenanceScores) {
+            @JsonProperty("maintenanceScore") MaintenanceScore maintenanceScores,
+            @JsonProperty("accidentFree") boolean isAccidentFree) {
         this.id = UUID.randomUUID();
         this.vin = vin;
         this.maintenanceScores = maintenanceScores;
-        accidentFree = null;
+        this.isAccidentFree = isAccidentFree;
     }
 
     public String getId() {
@@ -41,11 +41,11 @@ public class VehicleStatus {
         return vin;
     }
 
-    public Boolean accidentFree() {
-        return accidentFree;
+    public Boolean isAccidentFree() {
+        return isAccidentFree;
     }
 
-    public Set<MaintenanceScore> getMaintenanceScores() {
+    public MaintenanceScore getMaintenanceScores() {
         return maintenanceScores;
     }
 }
