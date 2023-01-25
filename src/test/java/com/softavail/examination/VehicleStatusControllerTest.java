@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Simple controller test (GET)
+ */
 @MicronautTest
 class VehicleStatusControllerTest {
 
@@ -14,9 +17,6 @@ class VehicleStatusControllerTest {
 
     @Test
     void testVehicleStatusService() {
-        assertEquals(
-                "4Y1SL65848Z411439",
-                vehicleStatusClient.check("4Y1SL65848Z411439").getVin()
-        );
+        assertEquals("4Y1SL65848Z411439", vehicleStatusClient.check("4Y1SL65848Z411439").getVin());
     }
 }

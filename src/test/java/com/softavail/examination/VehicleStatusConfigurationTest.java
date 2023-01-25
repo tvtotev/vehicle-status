@@ -3,14 +3,15 @@ package com.softavail.examination;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
-@Disabled
+/**
+ * Simple controller test (POST)
+ */
 @MicronautTest(startApplication = false)
 class VehicleStatusConfigurationTest {
     @Inject

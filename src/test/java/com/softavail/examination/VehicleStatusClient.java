@@ -10,6 +10,9 @@ import com.softavail.examination.model.VehicleStatusRequest;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.client.annotation.Client;
 
+/**
+ * Simple configuration test
+ */
 @Client("/")
 public interface VehicleStatusClient {
 

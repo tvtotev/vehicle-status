@@ -26,7 +26,7 @@ public class VehicleStatus {
     @JsonCreator
     public VehicleStatus(@JsonProperty("vin") String vin,
             @JsonProperty("maintenanceScore") MaintenanceScore maintenanceScores,
-            @JsonProperty("accidentFree") boolean isAccidentFree) {
+            @JsonProperty("accidentFree") Boolean isAccidentFree) {
         this.id = UUID.randomUUID();
         this.vin = vin;
         this.maintenanceScores = maintenanceScores;
