@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,8 +45,10 @@ import com.softavail.examination.model.VehicleStatusRequest;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import reactor.core.publisher.Mono;
 
 /**
  * Integration tests for the vehicle-checker service
@@ -182,12 +185,16 @@ public class VehicleStatusEndToEndTests {
         Set<String> features = Collections.unmodifiableSet(
                 new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
-        VehicleStatus response = vehicleStatusClient.check(request);
+        Publisher<VehicleStatus> response = vehicleStatusClient.check(request);
+        Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
         assertNotNull(response);
+        assertNotNull(vehicleStatusMono);
+
+        VehicleStatus vehicleStatus = vehicleStatusMono.block();
         assertNotNull(request.getFeatures());
-        assertEquals(request.getVin(), response.getVin());
-        assertEquals(MaintenanceScore.POOR, response.getMaintenanceScores());
-        assertEquals(Boolean.FALSE, response.isAccidentFree());
+        assertEquals(request.getVin(), vehicleStatus.getVin());
+        assertEquals(MaintenanceScore.POOR, vehicleStatus.getMaintenanceScores());
+        assertEquals(Boolean.FALSE, vehicleStatus.isAccidentFree());
     }
 
     /**
@@ -198,12 +205,17 @@ public class VehicleStatusEndToEndTests {
     void postWithRequestBodyAndEmtyServiceList() {
         Set<String> features = Collections.unmodifiableSet(new HashSet<>(Arrays.asList()));
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
-        VehicleStatus response = vehicleStatusClient.check(request);
+        Publisher<VehicleStatus> response = vehicleStatusClient.check(request);
+        Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
+        assertNotNull(response);
+        assertNotNull(vehicleStatusMono);
+
+        VehicleStatus vehicleStatus = vehicleStatusMono.block();
         assertNotNull(response);
         assertEquals(0, request.getFeatures().size());
-        assertEquals(request.getVin(), response.getVin());
-        assertNull(response.getMaintenanceScores());
-        assertNull(response.isAccidentFree());
+        assertEquals(request.getVin(), vehicleStatus.getVin());
+        assertNull(vehicleStatus.getMaintenanceScores());
+        assertNull(vehicleStatus.isAccidentFree());
     }
 
 }

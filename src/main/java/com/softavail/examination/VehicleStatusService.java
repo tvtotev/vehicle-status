@@ -8,10 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.RestTemplate;
 
 import com.softavail.examination.model.Insurance;
 import com.softavail.examination.model.MaintenanceFrequency;
@@ -20,11 +16,17 @@ import com.softavail.examination.model.VehicleStatus.MaintenanceScore;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.annotation.Client;
+import io.micronaut.validation.Validated;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-@Service
+@Singleton
 @Validated
 public class VehicleStatusService {
-
+    // https://guides.micronaut.io/latest/micronaut-http-client-maven-java.html
     private static final Logger LOG = LoggerFactory.getLogger(VehicleStatusService.class);
 
     private final AtomicReference<VehicleStatus> lastVehicleStatus = new AtomicReference<>();
@@ -34,6 +36,10 @@ public class VehicleStatusService {
 
     @Property(name = "endpoint.maintenance.frequency")
     private String maintenanceFrequencyEndpoint;
+
+    @Inject
+    @Client("/")
+    HttpClient httpClient;
 
     public VehicleStatus check(String vin) {
         final VehicleStatus vehicleStatus = new VehicleStatus(vin, null, false);
@@ -86,13 +92,9 @@ public class VehicleStatusService {
             url = insuranceEndpoint + path;
             e.printStackTrace();
         }
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseStr = restTemplate.getForEntity(url + vin, String.class);
-        LOG.info(url + vin + "=" + responseStr);
-        ResponseEntity<Insurance> response;
+        HttpRequest<String> request = HttpRequest.GET(url + vin);
         try {
-            response = restTemplate.getForEntity(url + vin, Insurance.class);
-            return response.getBody();
+            return httpClient.toBlocking().retrieve(request, Insurance.class);
         } catch (RuntimeException e) {
             LOG.error("Insurance request failure", e);
             throw e;
@@ -110,13 +112,10 @@ public class VehicleStatusService {
             e.printStackTrace();
         }
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseStr = restTemplate.getForEntity(url + vin, String.class);
-        LOG.info(url + vin + "=" + responseStr);
-        ResponseEntity<MaintenanceFrequency> response;
+        HttpRequest<String> request = HttpRequest.GET(url + vin);
+
         try {
-            response = restTemplate.getForEntity(url + vin, MaintenanceFrequency.class);
-            return response.getBody();
+            return httpClient.toBlocking().retrieve(request, MaintenanceFrequency.class);
         } catch (RuntimeException e) {
             LOG.error("MaintenanceFrequency request failure", e);
             throw e;

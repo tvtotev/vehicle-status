@@ -1,14 +1,16 @@
 package com.softavail.examination;
 
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import reactor.core.publisher.Mono;
 
-@RestController
+@Controller ("/")
 public class HomeController {
-    @GetMapping(path = "/", produces = "text/html")
-    public String home(Model model) {
-        model.addAttribute("message", "Welcome to Vehicle Status");
-        return "home";
+
+    @Get(produces = MediaType.TEXT_HTML)
+    public Mono<String> home() {
+        return Mono.just("Welcome to Vehicle Status");
     }
+
 }

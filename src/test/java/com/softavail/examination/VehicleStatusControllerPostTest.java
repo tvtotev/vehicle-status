@@ -8,13 +8,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 import com.softavail.examination.model.VehicleStatus;
 import com.softavail.examination.model.VehicleStatusRequest;
 
+import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-
+import reactor.core.publisher.Mono;
 
 /**
  * Simple controller test (POST)
@@ -29,11 +31,16 @@ class VehicleStatusControllerPostTest {
     void postWithRequestBodyAndPostMappingWorks() {
 
         Set<String> features = Collections.unmodifiableSet(new HashSet<>());
-
         VehicleStatusRequest request = new VehicleStatusRequest("vin123", features);
-        VehicleStatus response = vehicleStatusClient.check(request);
+
+        Publisher<VehicleStatus> response = vehicleStatusClient.check(request);
+        Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
+        assertNotNull(response);
+        assertNotNull(vehicleStatusMono);
+
+        VehicleStatus vehicleStatus = vehicleStatusMono.block();
         assertNotNull(response);
         assertNotNull(request.getFeatures());
-        assertEquals(request.getVin(), response.getVin());
+        assertEquals(vehicleStatus.getVin(), vehicleStatus.getVin());
     }
 }

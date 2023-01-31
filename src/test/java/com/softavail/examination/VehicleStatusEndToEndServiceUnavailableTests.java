@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -28,10 +30,12 @@ import com.softavail.examination.model.VehicleStatusRequest;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import reactor.core.publisher.Mono;
 
 /**
  * Integration tests for the vehicle-checker service
@@ -108,12 +112,17 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
                 new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
 
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
-        VehicleStatus response;
+        Publisher<VehicleStatus> response;
         try {
             response = vehicleStatusClient.check(request);
-            assertNull(response);
+            Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
+            assertNotNull(response);
+            assertNotNull(vehicleStatusMono);
+
+            VehicleStatus vehicleStatus = vehicleStatusMono.block();
+            assertNull(vehicleStatus);
         } catch (HttpClientResponseException e) {
-            assertEquals(e.getStatus(), HttpStatus.SERVICE_UNAVAILABLE);
+            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatus());
         }
 
     }

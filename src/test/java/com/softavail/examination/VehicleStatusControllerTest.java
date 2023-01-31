@@ -1,10 +1,17 @@
 package com.softavail.examination;
 
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
+
+import com.softavail.examination.model.VehicleStatus;
+
+import io.micronaut.core.async.publisher.Publishers;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import static org.junit.jupiter.api.Assertions.*;
+import reactor.core.publisher.Mono;
 
 /**
  * Simple controller test (GET)
@@ -17,6 +24,13 @@ class VehicleStatusControllerTest {
 
     @Test
     void testVehicleStatusService() {
-        assertEquals("4Y1SL65848Z411439", vehicleStatusClient.check("4Y1SL65848Z411439").getVin());
+        Publisher<VehicleStatus> response = vehicleStatusClient.check("4Y1SL65848Z411439");
+        Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
+        assertNotNull(response);
+        assertNotNull(vehicleStatusMono);
+
+        VehicleStatus vehicleStatus = vehicleStatusMono.block();
+        assertNotNull(vehicleStatus);
+        assertEquals("4Y1SL65848Z411439", vehicleStatus.getVin());
     }
 }

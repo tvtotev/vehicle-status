@@ -2,9 +2,18 @@ package com.softavail.examination.model;
 
 import java.util.Set;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.validation.Validated;
+
+@Validated
+@Introspected
 public class VehicleStatusRequest {
 
     public enum Feature {
@@ -22,7 +31,11 @@ public class VehicleStatusRequest {
         }
     }
 
+    @NotBlank(message = "VIN cannot be empty/nill")
+    @Size(min = 3, max = 64, message = "VIN Length must be 3-64 chars")
     private final String vin;
+
+    @NotNull(message = "Features set cannot be null")
     private final Set<String> features;
 
     @JsonCreator
@@ -38,5 +51,5 @@ public class VehicleStatusRequest {
     public Set<String> getFeatures() {
         return features;
     }
-    
+
 }

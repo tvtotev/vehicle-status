@@ -1,12 +1,13 @@
 package com.softavail.examination;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
 class HomeControllerTest {
@@ -17,16 +18,9 @@ class HomeControllerTest {
 
     @Test
     void renderServerSideHTMLwithThymeleafAndMicronautViews() {
-        String expected = "<!DOCTYPE html>\n" +
-                "<html>\n"+
-                "<head>\n"+
-                "    <title>Home</title>\n"+
-                "</head>\n"+
-                "<body>\n"+
-                "    <h1>Welcome to Vehicle Status</h1>\n"+
-                "</body>\n"+
-                "</html>";
+        String expected = "Welcome to Vehicle Status";
         String html = httpClient.toBlocking().retrieve("/");
         assertEquals(expected, html);
     }
+
 }

@@ -1,9 +1,7 @@
 package com.softavail.examination;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import io.micronaut.context.annotation.ConfigurationProperties;
 
-@Component
 @ConfigurationProperties("vahicle-status")
 public class VehicleStatusConfiguration {
 
