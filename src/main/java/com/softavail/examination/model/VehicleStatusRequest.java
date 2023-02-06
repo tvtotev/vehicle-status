@@ -31,11 +31,10 @@ public class VehicleStatusRequest {
         }
     }
 
-    @NotBlank(message = "VIN cannot be empty/nill")
+    @NotBlank(message = "VIN cannot be empty/null")
     @Size(min = 3, max = 64, message = "VIN Length must be 3-64 chars")
     private final String vin;
 
-    @NotNull(message = "Features set cannot be null")
     private final Set<String> features;
 
     @JsonCreator
