@@ -1,5 +1,6 @@
 package com.softavail.examination;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -39,7 +40,7 @@ public class VehicleStatusController {
     @Async
     @Post("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Mono<VehicleStatus> check(@Body @NotNull VehicleStatusRequest vehicleStatusRequest) {
+    public Mono<VehicleStatus> check(@Body @NotNull @Valid VehicleStatusRequest vehicleStatusRequest) {
         try {
             return Mono.just(
                     vehicleStatusService.check(vehicleStatusRequest.getVin(), vehicleStatusRequest.getFeatures()));
