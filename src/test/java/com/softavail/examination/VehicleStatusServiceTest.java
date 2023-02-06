@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
-@MicronautTest(startApplication = false)
+@MicronautTest(startApplication = true)
 class VehicleStatusServiceTest {
 
     @Inject
