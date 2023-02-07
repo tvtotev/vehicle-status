@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
+import com.softavail.examination.clients.VehicleStatusClient;
 import com.softavail.examination.model.VehicleStatus;
 
 import io.micronaut.core.async.publisher.Publishers;

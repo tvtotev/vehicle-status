@@ -25,6 +25,7 @@ import org.reactivestreams.Publisher;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.softavail.examination.clients.VehicleStatusClient;
 import com.softavail.examination.model.VehicleStatus;
 import com.softavail.examination.model.VehicleStatusRequest;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;

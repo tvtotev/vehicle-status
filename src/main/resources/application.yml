@@ -1,9 +1,13 @@
 micronaut:
   application:
     name: vehicle-status
+  http:
+    services:
+      insurance:
+        url: http://insurance.com
+      maintenance-frequency:
+        url: http://topgarage.com
 #tag::configuration[]
-endpoint.maintenance.frequency: http://topgarage.com
-endpoint.insurance: http://insurance.com
 vahicle-status:
   vin: "4Y1SL65848Z411439"
 #  features: ["accident_free", "maintenance"] # Possible values: "accident_free", "maintenance". At least one feature must be provided

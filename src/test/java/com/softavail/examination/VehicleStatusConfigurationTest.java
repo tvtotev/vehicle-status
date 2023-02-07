@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
  */
 @MicronautTest(startApplication = false)
 class VehicleStatusConfigurationTest {
+
     @Inject
     BeanContext beanContext;
 

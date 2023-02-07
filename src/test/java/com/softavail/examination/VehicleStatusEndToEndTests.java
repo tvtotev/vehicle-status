@@ -35,6 +35,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.softavail.examination.clients.InsuranceClient;
+import com.softavail.examination.clients.MaintenanceFrequencyClient;
+import com.softavail.examination.clients.VehicleStatusClient;
 import com.softavail.examination.model.Insurance;
 import com.softavail.examination.model.InsuranceReport;
 import com.softavail.examination.model.MaintenanceFrequency;
@@ -46,6 +49,8 @@ import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
 import io.micronaut.core.async.publisher.Publishers;
+import io.micronaut.http.HttpHeaders;
+import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
@@ -54,26 +59,31 @@ import reactor.core.publisher.Mono;
  * Integration tests for the vehicle-checker service
  */
 @MicronautTest(rebuildContext = true)
-@Property(name = "endpoint.insurance", value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
-        + VehicleStatusEndToEndTests.SITE)
-@Property(name = "endpoint.maintenance.frequency", value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
-        + VehicleStatusEndToEndTests.SITE)
+@Property(name = VehicleStatusEndToEndTests.INSURANCE_SERVICE, value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
+        + VehicleStatusEndToEndTests.SITE_HOST)
+@Property(name = VehicleStatusEndToEndTests.FREQ_MAINT_SERVICE, value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
+        + VehicleStatusEndToEndTests.SITE_HOST)
 public class VehicleStatusEndToEndTests {
 
     @Inject
     VehicleStatusClient vehicleStatusClient;
 
     public static final String SITE_SHEMA = "http";
-    public static final String SITE = "localhost";
+    public static final String SITE_HOST = "localhost";
+
+    public static final String INSURANCE_SERVICE = "micronaut.http.services." + InsuranceClient.SERVICE_NAME + ".url";
+    public static final String FREQ_MAINT_SERVICE = "micronaut.http.services." + MaintenanceFrequencyClient.SERVICE_NAME
+            + ".url";
 
     private static String VIN = "4Y1SL65848Z411439";
+
     private static final String INSURANCE_PATH = "/accidents/report?vin=" + VIN;
     private static final String FREQ_MAINT_PATH = "/cars/" + VIN;
 
-    @Property(name = "endpoint.insurance")
+    @Property(name = "micronaut.http.services.insurance.url")
     private String insuranceEndpoint;
 
-    @Property(name = "endpoint.maintenance.frequency")
+    @Property(name = "micronaut.http.services.maintenance-frequency.url")
     private String maintenanceFrequencyEndpoint;
 
     private static int wireMockPort = 80;
@@ -135,25 +145,25 @@ public class VehicleStatusEndToEndTests {
     @BeforeEach
     void beforeEach() throws ClientProtocolException, IOException {
         // Mock responses: Insurance and Maintenance external services
-        configureFor(SITE_SHEMA, SITE, wireMockPort);
-        stubFor(get(urlEqualTo(INSURANCE_PATH))
-                .willReturn(aResponse().withBody(insuranceStr).withHeader("Content-Type", "application/json")));
-        stubFor(get(urlEqualTo(FREQ_MAINT_PATH)).willReturn(
-                aResponse().withBody(maintenanceFrequencyStr).withHeader("Content-Type", "application/json")));
+        configureFor(SITE_SHEMA, SITE_HOST, wireMockPort);
+        stubFor(get(urlEqualTo(INSURANCE_PATH)).willReturn(
+                aResponse().withBody(insuranceStr).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
+        stubFor(get(urlEqualTo(FREQ_MAINT_PATH)).willReturn(aResponse().withBody(maintenanceFrequencyStr)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
 
         HttpGet request;
         HttpResponse httpResponse;
         String stringResponse;
 
         // Check whether Insurance external service is mocked
-        request = new HttpGet(SITE_SHEMA + "://" + SITE + ":" + wireMockPort + INSURANCE_PATH);
+        request = new HttpGet(SITE_SHEMA + "://" + SITE_HOST + ":" + wireMockPort + INSURANCE_PATH);
         httpResponse = httpClient.execute(request);
         stringResponse = convertResponseToString(httpResponse);
         verify(getRequestedFor(urlEqualTo(INSURANCE_PATH)));
         assertEquals(insuranceStr, stringResponse);
 
         // Check whether Maintenance external service is mocked
-        request = new HttpGet(SITE_SHEMA + "://" + SITE + ":" + wireMockPort + FREQ_MAINT_PATH);
+        request = new HttpGet(SITE_SHEMA + "://" + SITE_HOST + ":" + wireMockPort + FREQ_MAINT_PATH);
         httpResponse = httpClient.execute(request);
         stringResponse = convertResponseToString(httpResponse);
         verify(getRequestedFor(urlEqualTo(FREQ_MAINT_PATH)));

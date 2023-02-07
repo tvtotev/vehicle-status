@@ -1,27 +1,27 @@
 package com.softavail.examination;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.softavail.examination.clients.InsuranceClient;
+import com.softavail.examination.clients.MaintenanceFrequencyClient;
 import com.softavail.examination.model.Insurance;
 import com.softavail.examination.model.MaintenanceFrequency;
 import com.softavail.examination.model.VehicleStatus;
 import com.softavail.examination.model.VehicleStatus.MaintenanceScore;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
-import io.micronaut.context.annotation.Property;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.client.HttpClient;
+import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.validation.Validated;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import reactor.core.publisher.Mono;
 
 @Singleton
 @Validated
@@ -31,15 +31,13 @@ public class VehicleStatusService {
 
     private final AtomicReference<VehicleStatus> lastVehicleStatus = new AtomicReference<>();
 
-    @Property(name = "endpoint.insurance")
-    private String insuranceEndpoint;
-
-    @Property(name = "endpoint.maintenance.frequency")
-    private String maintenanceFrequencyEndpoint;
-
+    @Client("insurance")
     @Inject
-    @Client("/")
-    HttpClient httpClient;
+    InsuranceClient insuranceClient;
+
+    @Client("maintenance-frequency")
+    @Inject
+    MaintenanceFrequencyClient maintenanceFrequencyClient;
 
     public VehicleStatus check(String vin) {
         final VehicleStatus vehicleStatus = new VehicleStatus(vin, null, false);
@@ -83,18 +81,10 @@ public class VehicleStatusService {
     }
 
     Insurance getInsurance(String vin) {
-        String path = "/accidents/report?vin=";
-        String url;
         try {
-            URI uri = new URI(insuranceEndpoint).resolve(path);
-            url = uri.toString();
-        } catch (URISyntaxException e) {
-            url = insuranceEndpoint + path;
-            e.printStackTrace();
-        }
-        HttpRequest<String> request = HttpRequest.GET(url + vin);
-        try {
-            return httpClient.toBlocking().retrieve(request, Insurance.class);
+            Publisher<Insurance> response = insuranceClient.accidentReport(vin);
+            Mono<Insurance> insurance = Publishers.convertPublisher(response, Mono.class);
+            return insurance.block();
         } catch (RuntimeException e) {
             LOG.error("Insurance request failure", e);
             throw e;
@@ -102,20 +92,10 @@ public class VehicleStatusService {
     }
 
     MaintenanceFrequency getMaintenanceFrequency(String vin) {
-        String path = "/cars/";
-        String url;
         try {
-            URI uri = new URI(maintenanceFrequencyEndpoint).resolve(path);
-            url = uri.toString();
-        } catch (URISyntaxException e) {
-            url = maintenanceFrequencyEndpoint + path;
-            e.printStackTrace();
-        }
-
-        HttpRequest<String> request = HttpRequest.GET(url + vin);
-
-        try {
-            return httpClient.toBlocking().retrieve(request, MaintenanceFrequency.class);
+            Publisher<MaintenanceFrequency> response = maintenanceFrequencyClient.cars(vin);
+            Mono<MaintenanceFrequency> maintenanceFrequency = Publishers.convertPublisher(response, Mono.class);
+            return maintenanceFrequency.block();
         } catch (RuntimeException e) {
             LOG.error("MaintenanceFrequency request failure", e);
             throw e;
