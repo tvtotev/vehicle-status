@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -116,7 +118,7 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
             response = vehicleStatusClient.check(request);
             assertNotNull(response);
 
-            VehicleStatus vehicleStatus = response.block();
+            VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
             assertNull(vehicleStatus);
         } catch (HttpClientResponseException e) {
             assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatus());

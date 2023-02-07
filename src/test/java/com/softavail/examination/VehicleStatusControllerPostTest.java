@@ -3,6 +3,8 @@ package com.softavail.examination;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +37,7 @@ class VehicleStatusControllerPostTest {
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
 
-        VehicleStatus vehicleStatus = response.block();
+        VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
         assertNotNull(response);
         assertNotNull(request.getFeatures());
         assertEquals(vehicleStatus.getVin(), vehicleStatus.getVin());

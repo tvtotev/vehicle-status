@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -196,7 +198,7 @@ public class VehicleStatusEndToEndTests {
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
 
-        VehicleStatus vehicleStatus = response.block();
+        VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
         assertNotNull(request.getFeatures());
         assertEquals(request.getVin(), vehicleStatus.getVin());
         assertEquals(MaintenanceScore.POOR, vehicleStatus.getMaintenanceScores());
@@ -214,7 +216,7 @@ public class VehicleStatusEndToEndTests {
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
 
-        VehicleStatus vehicleStatus = response.block();
+        VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
         assertNotNull(response);
         assertEquals(0, request.getFeatures().size());
         assertEquals(request.getVin(), vehicleStatus.getVin());

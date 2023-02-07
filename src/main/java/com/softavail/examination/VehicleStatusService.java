@@ -1,5 +1,7 @@
 package com.softavail.examination;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,7 +83,8 @@ public class VehicleStatusService {
     Insurance getInsurance(String vin) {
         try {
             Mono<Insurance> response = insuranceClient.accidentReport(vin);
-            return response.block();
+            // Using Mono.subscribe() method here would not be appropriate here, as we depend on result immediately
+            return response.block(Duration.of(3000, ChronoUnit.MILLIS));
         } catch (RuntimeException e) {
             LOG.error("Insurance request failure", e);
             throw e;
@@ -91,7 +94,8 @@ public class VehicleStatusService {
     MaintenanceFrequency getMaintenanceFrequency(String vin) {
         try {
             Mono<MaintenanceFrequency> response = maintenanceFrequencyClient.cars(vin);
-            return response.block();
+            // Using Mono.subscribe() method here would not be appropriate here, as we depend on result immediately
+            return response.block(Duration.of(3000, ChronoUnit.MILLIS));
         } catch (RuntimeException e) {
             LOG.error("MaintenanceFrequency request failure", e);
             throw e;
