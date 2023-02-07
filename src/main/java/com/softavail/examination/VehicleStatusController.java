@@ -50,22 +50,4 @@ public class VehicleStatusController {
         }
     }
 
-    /*
-     * @Async
-     * 
-     * @Get("/check") public Mono<VehicleStatus> check( @RequestParam(value = "vin",
-     * defaultValue = "") String vin) { return
-     * Mono.just(vehicleStatusService.check(vin)); }
-     * 
-     * @Async
-     * 
-     * @Post("/check") public ResponseEntity<Mono<?>> check(@RequestBody
-     * VehicleStatusRequest vehicleStatusRequest) { try { return
-     * Mono.just(vehicleStatusService.check(vehicleStatusRequest.getVin(),
-     * vehicleStatusRequest.getFeatures())); } catch (ServiceUnavailableException e)
-     * { return Mono.just(null)
-     * 
-     * Mono.error(new WebClientExceptio
-     * Mono.error("Service is temporary unavailable (CODE 503)", 503); } }
-     */
 }

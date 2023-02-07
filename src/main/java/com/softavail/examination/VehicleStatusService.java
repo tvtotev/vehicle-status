@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,6 @@ import com.softavail.examination.model.VehicleStatus;
 import com.softavail.examination.model.VehicleStatus.MaintenanceScore;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
-import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.validation.Validated;
 import jakarta.inject.Inject;
@@ -82,9 +80,8 @@ public class VehicleStatusService {
 
     Insurance getInsurance(String vin) {
         try {
-            Publisher<Insurance> response = insuranceClient.accidentReport(vin);
-            Mono<Insurance> insurance = Publishers.convertPublisher(response, Mono.class);
-            return insurance.block();
+            Mono<Insurance> response = insuranceClient.accidentReport(vin);
+            return response.block();
         } catch (RuntimeException e) {
             LOG.error("Insurance request failure", e);
             throw e;
@@ -93,9 +90,8 @@ public class VehicleStatusService {
 
     MaintenanceFrequency getMaintenanceFrequency(String vin) {
         try {
-            Publisher<MaintenanceFrequency> response = maintenanceFrequencyClient.cars(vin);
-            Mono<MaintenanceFrequency> maintenanceFrequency = Publishers.convertPublisher(response, Mono.class);
-            return maintenanceFrequency.block();
+            Mono<MaintenanceFrequency> response = maintenanceFrequencyClient.cars(vin);
+            return response.block();
         } catch (RuntimeException e) {
             LOG.error("MaintenanceFrequency request failure", e);
             throw e;

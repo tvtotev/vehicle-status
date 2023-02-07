@@ -21,7 +21,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Publisher;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -31,7 +30,6 @@ import com.softavail.examination.model.VehicleStatusRequest;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
-import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -113,14 +111,12 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
                 new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
 
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
-        Publisher<VehicleStatus> response;
+        Mono<VehicleStatus> response;
         try {
             response = vehicleStatusClient.check(request);
-            Mono<VehicleStatus> vehicleStatusMono = Publishers.convertPublisher(response, Mono.class);
             assertNotNull(response);
-            assertNotNull(vehicleStatusMono);
 
-            VehicleStatus vehicleStatus = vehicleStatusMono.block();
+            VehicleStatus vehicleStatus = response.block();
             assertNull(vehicleStatus);
         } catch (HttpClientResponseException e) {
             assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatus());
