@@ -1,10 +1,7 @@
 package com.softavail.examination;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertNull;
@@ -49,8 +46,6 @@ import com.softavail.examination.model.VehicleStatusRequest;
 import com.softavail.examination.model.VehicleStatusRequest.Feature;
 
 import io.micronaut.context.annotation.Property;
-import io.micronaut.http.HttpHeaders;
-import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
@@ -60,9 +55,9 @@ import reactor.core.publisher.Mono;
  */
 @MicronautTest(rebuildContext = true)
 @Property(name = VehicleStatusEndToEndTests.INSURANCE_SERVICE, value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
-        + VehicleStatusEndToEndTests.SITE_HOST)
+        + VehicleStatusEndToEndTests.SITE_HOST + ":" + VehicleStatusEndToEndTests.wireMockPort)
 @Property(name = VehicleStatusEndToEndTests.FREQ_MAINT_SERVICE, value = VehicleStatusEndToEndTests.SITE_SHEMA + "://"
-        + VehicleStatusEndToEndTests.SITE_HOST)
+        + VehicleStatusEndToEndTests.SITE_HOST + ":" + VehicleStatusEndToEndTests.wireMockPort)
 public class VehicleStatusEndToEndTests {
 
     @Inject
@@ -70,6 +65,8 @@ public class VehicleStatusEndToEndTests {
 
     public static final String SITE_SHEMA = "http";
     public static final String SITE_HOST = "localhost";
+
+    public static final int wireMockPort = 8081;
 
     public static final String INSURANCE_SERVICE = "micronaut.http.services." + InsuranceClient.SERVICE_NAME + ".url";
     public static final String FREQ_MAINT_SERVICE = "micronaut.http.services." + MaintenanceFrequencyClient.SERVICE_NAME
@@ -86,13 +83,9 @@ public class VehicleStatusEndToEndTests {
     @Property(name = "micronaut.http.services.maintenance-frequency.url")
     private String maintenanceFrequencyEndpoint;
 
-    private static int wireMockPort = 80;
-
     @Rule
     private static WireMockRule wireMockRule = new WireMockRule(wireMockPort);
     private static WireMockServer wireMockServer;
-//    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
-//    private WireMockServer wireMockServer = new WireMockServer();
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private static Insurance insurance = null;
@@ -121,11 +114,11 @@ public class VehicleStatusEndToEndTests {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
         // Start WireMock
         if (!wireMockRule.isRunning()) {
             wireMockRule.start();
         }
-        wireMockPort = wireMockRule.port();
         wireMockServer = new WireMockServer(wireMockPort);
         if (!wireMockServer.isRunning()) {
             try {
@@ -133,7 +126,6 @@ public class VehicleStatusEndToEndTests {
             } catch (Exception e) {
             }
         }
-
     }
 
     @AfterAll
@@ -146,10 +138,6 @@ public class VehicleStatusEndToEndTests {
     void beforeEach() throws ClientProtocolException, IOException {
         // Mock responses: Insurance and Maintenance external services
         configureFor(SITE_SHEMA, SITE_HOST, wireMockPort);
-        stubFor(get(urlEqualTo(INSURANCE_PATH)).willReturn(
-                aResponse().withBody(insuranceStr).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
-        stubFor(get(urlEqualTo(FREQ_MAINT_PATH)).willReturn(aResponse().withBody(maintenanceFrequencyStr)
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
 
         HttpGet request;
         HttpResponse httpResponse;
@@ -168,7 +156,6 @@ public class VehicleStatusEndToEndTests {
         stringResponse = convertResponseToString(httpResponse);
         verify(getRequestedFor(urlEqualTo(FREQ_MAINT_PATH)));
         assertEquals(maintenanceFrequencyStr, stringResponse);
-
     }
 
     /**

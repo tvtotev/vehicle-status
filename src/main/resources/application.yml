@@ -4,11 +4,10 @@ micronaut:
   http:
     services:
       insurance:
-        url: http://insurance.com
+        url: http://localhost:8081
+#        url: http://insurance.com
       maintenance-frequency:
-        url: http://topgarage.com
-#tag::configuration[]
+        url: http://localhost:8081
+#        url: http://topgarage.com
 vahicle-status:
   vin: "4Y1SL65848Z411439"
-#  features: ["accident_free", "maintenance"] # Possible values: "accident_free", "maintenance". At least one feature must be provided
-#end::configuration[]  

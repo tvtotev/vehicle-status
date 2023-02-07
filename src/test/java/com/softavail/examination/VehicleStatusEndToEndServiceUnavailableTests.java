@@ -1,10 +1,6 @@
 package com.softavail.examination;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,6 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.softavail.examination.clients.InsuranceClient;
+import com.softavail.examination.clients.MaintenanceFrequencyClient;
 import com.softavail.examination.clients.VehicleStatusClient;
 import com.softavail.examination.model.VehicleStatus;
 import com.softavail.examination.model.VehicleStatusRequest;
@@ -42,12 +40,15 @@ import reactor.core.publisher.Mono;
  * Integration tests for the vehicle-checker service
  */
 @MicronautTest(rebuildContext = true)
-// Use HTTPS in order to provoke SSL exception/Service unavailable
-@Property(name = "endpoint.insurance", value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE + "://"
-        + VehicleStatusEndToEndServiceUnavailableTests.SITE)
-//Use HTTPS in order to provoke SSL exception/Service unavailable
-@Property(name = "endpoint.maintenance.frequency", value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE
-        + "://" + VehicleStatusEndToEndServiceUnavailableTests.SITE)
+//Use HTTPS in order to provoke SSL exception -> Service unavailable
+@Property(name = VehicleStatusEndToEndServiceUnavailableTests.INSURANCE_SERVICE, value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE
+        + "://" + VehicleStatusEndToEndServiceUnavailableTests.SITE_HOST + ":"
+        + VehicleStatusEndToEndTests.wireMockPort)
+//Use HTTPS in order to provoke SSL exception -> Service unavailable
+@Property(name = VehicleStatusEndToEndServiceUnavailableTests.FREQ_MAINT_SERVICE, value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE
+        + "://" + VehicleStatusEndToEndServiceUnavailableTests.SITE_HOST + ":"
+        + VehicleStatusEndToEndServiceUnavailableTests.wireMockPort)
+
 public class VehicleStatusEndToEndServiceUnavailableTests {
 
     @Inject
@@ -55,19 +56,21 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
 
     public static final String SITE_SHEMA = "http";
     public static final String SITE_SHEMA_SECURE = "https"; // httpS should cause exception
-    public static final String SITE = "localhost";
+    public static final String SITE_HOST = "localhost";
+
+    public static final int wireMockPort = 8081;
+
+    public static final String INSURANCE_SERVICE = "micronaut.http.services." + InsuranceClient.SERVICE_NAME + ".url";
+    public static final String FREQ_MAINT_SERVICE = "micronaut.http.services." + MaintenanceFrequencyClient.SERVICE_NAME
+            + ".url";
 
     private static String VIN = "4Y1SL65848Z411439";
-    private static final String INSURANCE_PATH = "/accidents/report?vin=" + VIN;
-    private static final String FREQ_MAINT_PATH = "/cars/" + VIN;
 
-    @Property(name = "endpoint.insurance")
+    @Property(name = "micronaut.http.services.insurance.url")
     private String insuranceEndpoint;
 
-    @Property(name = "endpoint.maintenance.frequency")
+    @Property(name = "micronaut.http.services.maintenance-frequency.url")
     private String maintenanceFrequencyEndpoint;
-
-    private static int wireMockPort = 80;
 
     @Rule
     private static WireMockRule wireMockRule = new WireMockRule(wireMockPort);
@@ -79,7 +82,6 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
         if (!wireMockRule.isRunning()) {
             wireMockRule.start();
         }
-        wireMockPort = wireMockRule.port();
         wireMockServer = new WireMockServer(wireMockPort);
         if (!wireMockServer.isRunning()) {
             try {
@@ -98,9 +100,7 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
     @BeforeEach
     void beforeEach() throws ClientProtocolException, IOException {
         // Mock responses: Insurance and Maintenance external services
-        configureFor(SITE_SHEMA, SITE, wireMockPort);
-        stubFor(get(urlEqualTo(INSURANCE_PATH)).willReturn(aResponse().withBody((String) null)));
-        stubFor(get(urlEqualTo(FREQ_MAINT_PATH)).willReturn(aResponse().withBody((String) null)));
+        configureFor(SITE_SHEMA, SITE_HOST, wireMockPort);
     }
 
     /**
