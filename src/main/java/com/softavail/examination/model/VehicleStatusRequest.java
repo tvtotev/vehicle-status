@@ -17,7 +17,7 @@ public class VehicleStatusRequest {
 
     public enum Feature {
 
-        ACCIDENT_FREE("accident_free"), MAINTANANCE("maintenance");
+        accident_free("accident_free"), maintenance("maintenance");
 
         public final String label;
 
@@ -25,19 +25,21 @@ public class VehicleStatusRequest {
             this.label = label;
         }
 
+        @Override
         public String toString() {
             return label;
         }
+
     }
 
     @NotBlank(message = "VIN cannot be empty/null")
     @Size(min = 3, max = 64, message = "VIN Length must be 3-64 chars")
     private final String vin;
 
-    private final Set<String> features;
+    private final Set<Feature> features;
 
     @JsonCreator
-    public VehicleStatusRequest(@JsonProperty("vin") String vin, @JsonProperty("features") Set<String> features) {
+    public VehicleStatusRequest(@JsonProperty("vin") String vin, @JsonProperty("features") Set<Feature> features) {
         this.vin = vin;
         this.features = features;
     }
@@ -46,7 +48,7 @@ public class VehicleStatusRequest {
         return vin;
     }
 
-    public Set<String> getFeatures() {
+    public Set<Feature> getFeatures() {
         return features;
     }
 

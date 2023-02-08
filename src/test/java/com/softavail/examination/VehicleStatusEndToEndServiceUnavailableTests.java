@@ -43,7 +43,7 @@ import reactor.core.publisher.Mono;
 //Use HTTPS in order to provoke SSL exception -> Service unavailable
 @Property(name = VehicleStatusEndToEndServiceUnavailableTests.INSURANCE_SERVICE, value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE
         + "://" + VehicleStatusEndToEndServiceUnavailableTests.SITE_HOST + ":"
-        + VehicleStatusEndToEndTests.wireMockPort)
+        + VehicleStatusEndToEndServiceUnavailableTests.wireMockPort)
 //Use HTTPS in order to provoke SSL exception -> Service unavailable
 @Property(name = VehicleStatusEndToEndServiceUnavailableTests.FREQ_MAINT_SERVICE, value = VehicleStatusEndToEndServiceUnavailableTests.SITE_SHEMA_SECURE
         + "://" + VehicleStatusEndToEndServiceUnavailableTests.SITE_HOST + ":"
@@ -109,8 +109,8 @@ public class VehicleStatusEndToEndServiceUnavailableTests {
     @Test
     void endToEndPositiveTestWithRequestingInsuranceAndMaintenanceServices() {
         // Perform end-to-end test with external service unavailability
-        Set<String> features = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        Set<Feature> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.accident_free, Feature.maintenance)));
 
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
         Mono<VehicleStatus> response;

@@ -45,17 +45,17 @@ public class VehicleStatusService {
         return vehicleStatus;
     }
 
-    public VehicleStatus check(String vin, Set<String> features) throws ServiceUnavailableException {
+    public VehicleStatus check(String vin, Set<Feature> features) throws ServiceUnavailableException {
         final VehicleStatus vehicleStatus;
         Boolean isAccedentFree = null;
         MaintenanceScore maintenanceScore = null;
         try {
             MaintenanceFrequency maintenanceFrequency = null;
-            if (features != null && features.contains(Feature.ACCIDENT_FREE.toString())) {
+            if (features != null && features.contains(Feature.accident_free)) {
                 Insurance insurance = getInsurance(vin);
                 isAccedentFree = insurance != null ? insurance.getReport().getClaims() == 0 : null;
             }
-            if (features != null && features.contains(Feature.MAINTANANCE.toString())) {
+            if (features != null && features.contains(Feature.maintenance)) {
                 maintenanceFrequency = getMaintenanceFrequency(vin);
                 if (maintenanceFrequency != null && maintenanceFrequency.getMaintenanceFrequency() != null) {
                     if (maintenanceFrequency.getMaintenanceFrequency().toLowerCase().contains("low")) {

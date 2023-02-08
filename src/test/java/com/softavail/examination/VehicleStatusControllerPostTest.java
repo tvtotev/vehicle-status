@@ -31,7 +31,7 @@ class VehicleStatusControllerPostTest {
     @Test
     void postWithRequestBodyAndPostMappingWorks() {
 
-        Set<String> features = Collections.unmodifiableSet(new HashSet<>());
+        Set<VehicleStatusRequest.Feature> features = Collections.unmodifiableSet(new HashSet<>());
         VehicleStatusRequest request = new VehicleStatusRequest("vin123", features);
 
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);

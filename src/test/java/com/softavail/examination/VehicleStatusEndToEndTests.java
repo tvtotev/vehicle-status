@@ -179,8 +179,8 @@ public class VehicleStatusEndToEndTests {
     @Test
     void endToEndPositiveTestWithRequestingInsuranceAndMaintenanceServices() throws IOException {
         // Perform end-to-end test
-        Set<String> features = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        Set<Feature> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.accident_free, Feature.maintenance)));
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
@@ -195,8 +195,8 @@ public class VehicleStatusEndToEndTests {
     @Test
     void endToEndNegativeTestWithCustomVin() throws IOException {
         // Perform end-to-end test
-        Set<String> features = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        Set<Feature> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.accident_free, Feature.maintenance)));
         VehicleStatusRequest request = new VehicleStatusRequest("CUSTOM" + VIN, features);
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
@@ -211,8 +211,8 @@ public class VehicleStatusEndToEndTests {
     @Test
     void endToEndNegativeTestWithVin_4Y2() throws IOException {
         // Perform end-to-end test
-        Set<String> features = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        Set<Feature> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.accident_free, Feature.maintenance)));
         VehicleStatusRequest request = new VehicleStatusRequest("4Y2_1234567890", features);
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
@@ -230,7 +230,7 @@ public class VehicleStatusEndToEndTests {
      */
     @Test
     void postWithRequestBodyAndEmtyServiceList() {
-        Set<String> features = Collections.unmodifiableSet(new HashSet<>(Arrays.asList()));
+        Set<Feature> features = Collections.unmodifiableSet(new HashSet<>(Arrays.asList()));
         VehicleStatusRequest request = new VehicleStatusRequest(VIN, features);
         Mono<VehicleStatus> response = vehicleStatusClient.check(request);
         assertNotNull(response);
