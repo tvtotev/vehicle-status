@@ -192,6 +192,38 @@ public class VehicleStatusEndToEndTests {
         assertEquals(Boolean.FALSE, vehicleStatus.isAccidentFree());
     }
 
+    @Test
+    void endToEndNegativeTestWithCustomVin() throws IOException {
+        // Perform end-to-end test
+        Set<String> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        VehicleStatusRequest request = new VehicleStatusRequest("CUSTOM" + VIN, features);
+        Mono<VehicleStatus> response = vehicleStatusClient.check(request);
+        assertNotNull(response);
+
+        VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
+        assertNotNull(request.getFeatures());
+        assertEquals(request.getVin(), vehicleStatus.getVin());
+        assertEquals(MaintenanceScore.GOOD, vehicleStatus.getMaintenanceScores());
+        assertEquals(Boolean.TRUE, vehicleStatus.isAccidentFree());
+    }
+
+    @Test
+    void endToEndNegativeTestWithVin_4Y2() throws IOException {
+        // Perform end-to-end test
+        Set<String> features = Collections.unmodifiableSet(
+                new HashSet<>(Arrays.asList(Feature.ACCIDENT_FREE.toString(), Feature.MAINTANANCE.toString())));
+        VehicleStatusRequest request = new VehicleStatusRequest("4Y2_1234567890", features);
+        Mono<VehicleStatus> response = vehicleStatusClient.check(request);
+        assertNotNull(response);
+
+        VehicleStatus vehicleStatus = response.block(Duration.of(1000, ChronoUnit.MILLIS));
+        assertNotNull(request.getFeatures());
+        assertEquals(request.getVin(), vehicleStatus.getVin());
+        assertEquals(MaintenanceScore.AVERAGE, vehicleStatus.getMaintenanceScores());
+        assertEquals(Boolean.FALSE, vehicleStatus.isAccidentFree());
+    }
+
     /**
      * Integration test for negative scenario. Neither insurance you nor maintenance
      * is requested

@@ -10,7 +10,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 /**
- * Simple controller test (POST)
+ * Simple controller test
  */
 @MicronautTest(startApplication = false)
 class VehicleStatusConfigurationTest {

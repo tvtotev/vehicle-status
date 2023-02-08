@@ -1,12 +1,12 @@
 {
-    "priority": 1,
+    "priority": 3,
     "request": {
         "method": "GET",
-        "url": "/cars/4Y1SL65848Z411439"
+        "urlPattern": "/cars/.*"
     },
     "response": {
         "status": 200,
-        "body": "{\"maintenance_frequency\":\"verylow\"}",
+        "body": "{\"maintenance_frequency\":\"high\"}",
         "headers": {
             "Content-Type": "application/json"
         }
